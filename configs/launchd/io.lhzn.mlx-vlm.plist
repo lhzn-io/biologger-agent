@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>io.lhzn.mlx-vlm-server</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/lhzn/Projects/whoi-mpg/biologger-expert/.venv/bin/python</string>
+        <string>-m</string>
+        <string>mlx_vlm.server</string>
+        <string>--model</string>
+        <string>google/gemma-4-26b-a4b-it</string>
+        <string>--adapter-path</string>
+        <string>/Users/lhzn/Projects/whoi-mpg/biologger-expert</string>
+        <string>--host</string>
+        <string>0.0.0.0</string>
+        <string>--port</string>
+        <string>8080</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/lhzn/Projects/whoi-mpg/biologger-expert</string>
+    <key>StandardOutPath</key>
+    <string>/Users/lhzn/Projects/whoi-mpg/biologger-expert/logs/mlx-vlm-server.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/lhzn/Projects/whoi-mpg/biologger-expert/logs/mlx-vlm-server.err</string>
+    <key>RunAtLoad</key>
+    <false/>
+    <key>KeepAlive</key>
+    <false/>
+</dict>
+</plist>

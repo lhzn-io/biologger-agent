@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # ZeroClaw agent gateway (orchestrator)
+  biologger-agent:
+    image: zeroclaw:latest
+    container_name: biologger-agent-gateway
+    user: "root"
+    ports:
+      - "42617:42617"
+    environment:
+      - ZEROCLAW_CONFIG_DIR=/zeroclaw-data/.zeroclaw
+      - ZEROCLAW_WORKSPACE=/zeroclaw-data/workspace
+      - DEFAULT_PROVIDER=${DEFAULT_PROVIDER:-vllm}
+      - DEFAULT_MODEL=${DEFAULT_MODEL:-google/gemma-4-26b-a4b-it}
+      - ZEROCLAW_GATEWAY_PORT=42617
+      - ZEROCLAW_NO_SANDBOX=1
+    volumes:
+      - ./config/.zeroclaw:/zeroclaw-data/.zeroclaw
+      - ${BIOLOGGER_WORKSPACE_DIR:-./workspace}:/zeroclaw-data/workspace
+      - ${BIOLOGGER_DATASETS_DIR:-/Users/lhzn/Projects/whoi-mpg/datasets}:/zeroclaw-data/datasets:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    depends_on:
+      - browser-node
+
+  # Standard browser automation container for web tools
+  browser-node:
+    image: seleniarm/standalone-chromium:latest
+    container_name: biologger-browser-node
+    shm_size: "2g"
+    ports:
+      - "4444:4444"
+    restart: unless-stopped

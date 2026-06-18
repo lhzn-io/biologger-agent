@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # Containerized vLLM OpenAI-compatible server for NVIDIA/CUDA platforms
+  vllm-server:
+    image: vllm/vllm-openai:latest
+    container_name: biologger-vllm-server
+    shm_size: "16g"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+      - TRANSFORMERS_CACHE=/data/models/huggingface
+    volumes:
+      - ${HF_CACHE_DIR:-~/.cache/huggingface}:/data/models/huggingface
+    ports:
+      - "8000:8000"
+    command: ["vllm", "serve", "google/gemma-4-26b-a4b-it", "--port", "8000", "--gpu-memory-utilization", "0.85"]
+    restart: unless-stopped
+
+  # Override ZeroClaw to depend on vllm-server and target its network address
+  biologger-agent:
+    environment:
+      - DEFAULT_PROVIDER=vllm
+      - DEFAULT_MODEL=google/gemma-4-26b-a4b-it
+      - VLM_API_URL=http://vllm-server:8000/v1
+    depends_on:
+      - vllm-server
+      - browser-node
