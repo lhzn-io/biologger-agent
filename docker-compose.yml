@@ -1,10 +1,10 @@
 version: '3.8'
 
 services:
-  # ZeroClaw agent gateway (orchestrator)
-  biologger-agent:
+  # Operator Agent Gateway (Port 42617)
+  biologger-operator:
     image: zeroclaw:latest
-    container_name: biologger-agent-gateway
+    container_name: biologger-operator-gateway
     user: "root"
     ports:
       - "42617:42617"
@@ -16,8 +16,8 @@ services:
       - ZEROCLAW_GATEWAY_PORT=42617
       - ZEROCLAW_NO_SANDBOX=1
     volumes:
-      - ./config/.zeroclaw:/zeroclaw-data/.zeroclaw
-      - ${BIOLOGGER_WORKSPACE_DIR:-./workspace}:/zeroclaw-data/workspace
+      - ./config/.zeroclaw/operator:/zeroclaw-data/.zeroclaw
+      - ./workspace/operator:/zeroclaw-data/workspace
       - ${BIOLOGGER_DATASETS_DIR:-/Users/lhzn/Projects/whoi-mpg/datasets}:/zeroclaw-data/datasets:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -25,7 +25,31 @@ services:
     depends_on:
       - browser-node
 
-  # Standard browser automation container for web tools
+  # Admin Agent Gateway (Port 42618)
+  biologger-admin:
+    image: zeroclaw:latest
+    container_name: biologger-admin-gateway
+    user: "root"
+    ports:
+      - "42618:42618"
+    environment:
+      - ZEROCLAW_CONFIG_DIR=/zeroclaw-data/.zeroclaw
+      - ZEROCLAW_WORKSPACE=/zeroclaw-data/workspace
+      - DEFAULT_PROVIDER=${DEFAULT_PROVIDER:-vllm}
+      - DEFAULT_MODEL=${DEFAULT_MODEL:-google/gemma-4-26b-a4b-it}
+      - ZEROCLAW_GATEWAY_PORT=42618
+      - ZEROCLAW_NO_SANDBOX=1
+    volumes:
+      - ./config/.zeroclaw/admin:/zeroclaw-data/.zeroclaw
+      - ./workspace/admin:/zeroclaw-data/workspace
+      - ./workspace/operator:/zeroclaw-data/operator_workspace   # Admin access to operator's workspace for debugging
+      - ${BIOLOGGER_DATASETS_DIR:-/Users/lhzn/Projects/whoi-mpg/datasets}:/zeroclaw-data/datasets
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    depends_on:
+      - browser-node
+
   browser-node:
     image: seleniarm/standalone-chromium:latest
     container_name: biologger-browser-node

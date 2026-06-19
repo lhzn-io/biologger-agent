@@ -48,9 +48,13 @@ if [ -z "$UPLIFT_ROOT" ]; then
 fi
 
 echo -e "${CYAN}Found uplift repo at $UPLIFT_ROOT${NC}"
-echo -e "${CYAN}Building ZeroClaw container image...${NC}"
-docker build -t zeroclaw:latest "$UPLIFT_ROOT/stack/zeroclaw"
-echo -e "${GREEN}[✔] ZeroClaw image built successfully${NC}"
+if docker image inspect zeroclaw:latest >/dev/null 2>&1; then
+    echo -e "${GREEN}[✔] ZeroClaw image already exists. Skipping build.${NC}"
+else
+    echo -e "${CYAN}Building ZeroClaw container image...${NC}"
+    docker build -t zeroclaw:latest "$UPLIFT_ROOT/stack/zeroclaw"
+    echo -e "${GREEN}[✔] ZeroClaw image built successfully${NC}"
+fi
 
 # 4. Handle Environment Configuration
 if [ ! -f .env ]; then
@@ -61,14 +65,30 @@ else
     echo -e "${GREEN}[✔] Local .env file exists${NC}"
 fi
 
-# 5. Initialize Local Directories
-mkdir -p ./workspace
-mkdir -p ./config/.zeroclaw
+# 5. Initialize Local Directories and copy Skills Registry
+echo -e "${CYAN}Initializing workspaces and copying skills...${NC}"
+mkdir -p ./workspace/operator/skills
+mkdir -p ./workspace/admin/skills
+mkdir -p ./config/.zeroclaw/operator
+mkdir -p ./config/.zeroclaw/admin
+
+# Copy custom operator and admin skills from git-tracked configs/skills
+if [ -d "./configs/skills/operator" ]; then
+    cp -r ./configs/skills/operator/* ./workspace/operator/skills/
+fi
+if [ -d "./configs/skills/admin" ]; then
+    cp -r ./configs/skills/admin/* ./workspace/admin/skills/
+fi
+
+# Touch learned facts logs if not existing
+touch ./config/.zeroclaw/operator/learned_facts.md
+touch ./config/.zeroclaw/admin/learned_facts.md
 
 # 6. Boot container stack with NVIDIA overrides
 echo -e "${CYAN}Starting docker containers with NVIDIA GPU overrides...${NC}"
 docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d
 
 echo -e "${GREEN}=== Bootstrapping Completed Successfully ===${NC}"
-echo -e "${CYAN}ZeroClaw Gateway running at http://localhost:42617${NC}"
+echo -e "${CYAN}Operator Gateway running at http://localhost:42617${NC}"
+echo -e "${CYAN}Admin Gateway running at http://localhost:42618${NC}"
 echo -e "${CYAN}vLLM Model Server running at http://localhost:8000/v1${NC}"

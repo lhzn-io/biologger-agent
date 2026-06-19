@@ -1,0 +1,19 @@
+[skill]
+name = "inspect-datasets"
+description = "Enables query and profiling of the local datasets registry and CSV metadata."
+version = "1.0.0"
+author = "Marine Predators Group"
+tags = ["datasets", "metadata", "profiling"]
+prompts = [
+  "Use this tool when the operator asks to list, view, profile, or inspect the dataset catalog or metadata files."
+]
+
+[[tools]]
+name = "inspect_datasets"
+description = "Queries the dataset catalog, lists datasets, or returns profiling statistics for a specific dataset ID."
+kind = "script"
+command = "python3 skills/inspect_datasets/inspect_datasets.py {{action}} {{dataset_id}}"
+
+[tools.args]
+action = "The action to perform: 'list' (lists all datasets) or 'profile' (returns profiling stats for a specific dataset)."
+dataset_id = "Optional. The ID of the dataset to profile (required if action is 'profile')."

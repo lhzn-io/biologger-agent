@@ -1,0 +1,66 @@
+workspace_dir = "/zeroclaw-data/workspace"
+config_path = "/zeroclaw-data/.zeroclaw/config.toml"
+api_key = "unused"
+default_provider = "vllm"
+default_model = "google/gemma-4-26b-a4b-it"
+default_temperature = 0.7
+
+[identity]
+format = "aieos"
+aieos_path = "/zeroclaw-data/.zeroclaw/identity.json"
+
+[providers]
+fallback = "vllm"
+
+[providers.models.vllm]
+model = "google/gemma-4-26b-a4b-it"
+base_url = "http://host.docker.internal:8080/v1"
+api_key = "unused"
+merge_system_into_user = true
+requires_openai_auth = false
+temperature = 0.7
+timeout_secs = 120
+
+[gateway]
+port = 42617
+host = "0.0.0.0"
+allow_public_bind = true
+require_pairing = false
+web_dist_dir = "/zeroclaw-data/web/dist"
+
+[agent]
+compact_context = false
+context_aware_tools = false
+max_context_tokens = 32000
+max_tool_iterations = 10
+parallel_tools = false
+tool_dispatcher = "xml"
+
+[skills]
+allow_scripts = true
+open_skills_enabled = true
+prompt_injection_mode = "compact"
+
+[shell_tool]
+timeout_secs = 120
+
+[security]
+[security.sandbox]
+backend = "none"
+
+[mcp]
+enabled = false
+deferred_loading = true
+servers = []
+
+[autonomy]
+allowed_commands = ["*"]
+allowed_roots = []
+always_ask = []
+auto_approve = ["*"]
+block_high_risk_commands = true
+level = "full"
+max_actions_per_hour = 100
+max_cost_per_day_cents = 500
+workspace_only = true
+

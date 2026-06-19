@@ -18,3 +18,10 @@ config/.zeroclaw/sessions.db*
 # Private fleet network configuration (credentials/hostnames)
 .agents/configs/ssh_hosts.json
 config/.zeroclaw/.secret_key
+
+# Multi-gateway runtime ignores
+config/.zeroclaw/*/daemon_state.json
+config/.zeroclaw/*/sessions.db*
+config/.zeroclaw/*/.secret_key
+config/.zeroclaw/*/workspace/
+config/.zeroclaw/*/skills/
